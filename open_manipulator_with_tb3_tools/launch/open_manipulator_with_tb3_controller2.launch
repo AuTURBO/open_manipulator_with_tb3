@@ -20,7 +20,7 @@
     <!--<param name="position_x_in_front_up_a_box"     value="0.3"/>-->
     <param name="position_x_in_front_up_a_box"     value="0.5"/>
     <!--<param name="position_y_in_front_up_a_box"     value="-0.17"/>-->
-    <param name="position_y_in_front_up_a_box"     value="-0.12"/>
+    <param name="position_y_in_front_up_a_box"     value="-0.09"/>
     <param name="position_z_in_front_up_a_box"     value="0.0"/>
 
     <param name="orientation_w_in_front_up_a_box"     value="1.0"/>
