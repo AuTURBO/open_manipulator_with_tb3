@@ -1,0 +1,6 @@
+<launch>
+  <arg name="use_robot_name"  default="open_manipulator_with_tb3"/>  
+  <node pkg="open_manipulator_with_tb3_tools" type="getsetposition" name="getsetposition" respawn="false" output="screen">
+    <param name="robot_name"  value="$(arg use_robot_name)"/>
+  </node>
+</launch>

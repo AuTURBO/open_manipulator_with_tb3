@@ -49,3 +49,17 @@
 - [e-Book for TurtleBot3 and OpenManipulator](https://community.robotsource.org/t/download-the-ros-robot-programming-book-for-free/51/)
 - [Videos for OpenManipulator](https://www.youtube.com/playlist?list=PLRG6WP3c31_WpEsB6_Rdt3KhiopXQlUkb)
 - [Videos for TurtleBot3 and OpenManipulator](https://www.youtube.com/playlist?list=PLRG6WP3c31_XI3wlvHlx2Mp8BYqgqDURU)
+
+
+## add server clinet node to contorl open_manipulator_position_ctrl / arm_controller.cpp
+
+run command  
+
+roscore   
+roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_gazebo2.launch   
+roslaunch open_manipulator_with_tb3_waffle_moveit demo2.launch use_gazebo:=true   
+roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_getset.launch   
+rostopic pub /getarm_position std_msgs/String "get_kinematics_pose" --once   
+rostopic pub /getarm_position std_msgs/String "set_kinematics_pose" --once   
+rostopic pub /getarm_position std_msgs/String "get_joint_pose" --once   
+rostopic pub /getarm_position std_msgs/String "set_joint_pose" --once   

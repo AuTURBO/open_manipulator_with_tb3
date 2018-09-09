@@ -64,6 +64,11 @@ add_executable(place2 src/place2.cpp)
 add_dependencies(place2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(place2 ${catkin_LIBRARIES})
 
+add_executable(getsetposition src/getsetposition.cpp)
+add_dependencies(getsetposition ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(getsetposition ${catkin_LIBRARIES})
+
+
 ################################################################################
 # Install
 ################################################################################
@@ -72,7 +77,7 @@ catkin_install_python(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(TARGETS pick pick2 place place2
+install(TARGETS pick pick2 place place2 getsetposition
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
