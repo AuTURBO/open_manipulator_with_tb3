@@ -1,65 +1,58 @@
-# OpenManipulator
-<img src="https://github.com/ROBOTIS-GIT/emanual/blob/master/assets/images/platform/openmanipulator/OpenManipulator.png">
-<img src="https://github.com/ROBOTIS-GIT/emanual/blob/master/assets/images/platform/openmanipulator/OpenManipulator_Chain_Capture.png" width="500">
+## Description
+This git is addition application git for Open Manipulator with turtlebot3.  
+Original Reference Code is   
+https://github.com/ROBOTIS-GIT/open_manipulator_with_tb3  
 
-## ROS Packages for OpenManipulator
-|Version|Kinetic + Ubuntu Xenial|Melodic + Ubuntu Bionic|
-|:---:|:---:|:---:|
-|[![GitHub version](https://badge.fury.io/gh/ROBOTIS-GIT%2Fopen_manipulator_with_tb3.svg)](https://badge.fury.io/gh/ROBOTIS-GIT%2Fopen_manipulator_with_tb3)|[![Build Status](https://travis-ci.org/ROBOTIS-GIT/open_manipulator_with_tb3.svg?branch=kinetic-devel)](https://travis-ci.org/ROBOTIS-GIT/open_manipulator_with_tb3)|-|
+## environment setting 
 
-## ROBOTIS e-Manual for OpenManipulator
-- [ROBOTIS e-Manual for OpenManipulator with tb3](http://emanual.robotis.com/docs/en/platform/turtlebot3/manipulation/#manipulation)
+*First you must set open manipulator and turtlebot3 environment and mobile manipulator   
+http://emanual.robotis.com/docs/en/platform/openmanipulator/  
+http://emanual.robotis.com/docs/en/platform/turtlebot3/overview/  
 
-## Wiki for open_manipulator_with_tb3 Packages
-- http://wiki.ros.org/open_manipulator_with_tb3 (metapackage)
-- http://wiki.ros.org/open_manipulator_with_tb3_description
-- http://wiki.ros.org/open_manipulator_with_tb3_tools
-- http://wiki.ros.org/open_manipulator_with_tb3_waffle_moveit
-- http://wiki.ros.org/open_manipulator_with_tb3_waffle_pi_moveit
+*Sencond,  download modifed git. 
+```bash
+git clone https://github.com/AuTURBO/open_manipulator_with_tb3.git  
+git clone https://github.com/AuTURBO/open_manipulator_with_tb3_simulations.git  
+```
+*Third, set model waffle at ~/.bashrc file.    
+```bash
+#export TURTLEBOT3_MODEL=burger
+export TURTLEBOT3_MODEL=waffle
+#export TURTLEBOT3_MODEL=waffle_pi
+```
+## Run Room1
 
-## Open Source related to OpenManipulator
-- [open_manipulator](https://github.com/ROBOTIS-GIT/open_manipulator)
-- [open_manipulator_msgs](https://github.com/ROBOTIS-GIT/open_manipulator_msgs)
-- [open_manipulator_simulations](https://github.com/ROBOTIS-GIT/open_manipulator_simulations)
-- [open_manipulator_perceptions](https://github.com/ROBOTIS-GIT/open_manipulator_perceptions)
-- [open_manipulator_with_tb3](https://github.com/ROBOTIS-GIT/open_manipulator_with_tb3)
-- [open_manipulator_with_tb3_msgs](https://github.com/ROBOTIS-GIT/open_manipulator_with_tb3_msgs)
-- [open_manipulator_with_tb3_simulations](https://github.com/ROBOTIS-GIT/open_manipulator_with_tb3_simulations)
-- [turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
-- [turtlebot3_msgs](https://github.com/ROBOTIS-GIT/turtlebot3_msgs)
-- [turtlebot3_simulations](https://github.com/ROBOTIS-GIT/turtlebot3_simulations)
-- [turtlebot3_applications](https://github.com/ROBOTIS-GIT/turtlebot3_applications)
-- [turtlebot3_applications_msgs](https://github.com/ROBOTIS-GIT/turtlebot3_applications_msgs)
-- [turtlebot3_autorace](https://github.com/ROBOTIS-GIT/turtlebot3_autorace)
-- [turtlebot3_deliver](https://github.com/ROBOTIS-GIT/turtlebot3_deliver)
-- [hls_lfcd_lds_driver](https://github.com/ROBOTIS-GIT/hls_lfcd_lds_driver)
-- [manipulator_h](https://github.com/ROBOTIS-GIT/ROBOTIS-MANIPULATOR-H)
-- [dynamixel_sdk](https://github.com/ROBOTIS-GIT/DynamixelSDK)
-- [dynamixel_workbench](https://github.com/ROBOTIS-GIT/dynamixel-workbench)
-- [robotis_math](https://github.com/ROBOTIS-GIT/ROBOTIS-Math)
-- [OpenCR-Hardware](https://github.com/ROBOTIS-GIT/OpenCR-Hardware)
-- [OpenCR](https://github.com/ROBOTIS-GIT/OpenCR)
+$roscore  
+$roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_rooms1.launch  
+$roslaunch open_manipulator_with_tb3_description open_manipulator_with_tb3_model.launch use_gazebo:=true  
+!!!!! please push play button gazebo map .  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller1.launch
 
-## Documents and Videos related to OpenManipulator
-- [ROBOTIS e-Manual for OpenManipulator](http://emanual.robotis.com/docs/en/platform/openmanipulator/)
-- [ROBOTIS e-Manual for TurtleBot3](http://turtlebot3.robotis.com/)
-- [ROBOTIS e-Manual for ROBOTIS MANIPULATOR-H](http://emanual.robotis.com/docs/en/platform/manipulator_h/introduction/)
-- [ROBOTIS e-Manual for Dynamixel SDK](http://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/)
-- [ROBOTIS e-Manual for Dynamixel Workbench](http://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_workbench/)
-- [e-Book for TurtleBot3 and OpenManipulator](https://community.robotsource.org/t/download-the-ros-robot-programming-book-for-free/51/)
-- [Videos for OpenManipulator](https://www.youtube.com/playlist?list=PLRG6WP3c31_WpEsB6_Rdt3KhiopXQlUkb)
-- [Videos for TurtleBot3 and OpenManipulator](https://www.youtube.com/playlist?list=PLRG6WP3c31_XI3wlvHlx2Mp8BYqgqDURU)
+Click image to link to YouTube video.  
+[![Video Label](http://img.youtube.com/vi/xfhoDjVyetg/0.jpg)](https://youtu.be/xfhoDjVyetg?t=0s) 
 
+## Run Room2
 
-## add server clinet node to contorl open_manipulator_position_ctrl / arm_controller.cpp
+$roscore  
+$roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_rooms2.launch  
+$roslaunch open_manipulator_with_tb3_description open_manipulator_with_tb3_model.launch use_gazebo:=true  
+!!!!! please push play button gazebo map .  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller2.launch
 
-run command  
+Click image to link to YouTube video.  
+[![Video Label](http://img.youtube.com/vi/XlLM5o116SQ/0.jpg)](https://youtu.be/XlLM5o116SQ?t=0s) 
 
-roscore   
-roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_gazebo2.launch   
-roslaunch open_manipulator_with_tb3_waffle_moveit demo2.launch use_gazebo:=true   
-roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_getset.launch   
-rostopic pub /getarm_position std_msgs/String "get_kinematics_pose" --once   
-rostopic pub /getarm_position std_msgs/String "set_kinematics_pose" --once   
-rostopic pub /getarm_position std_msgs/String "get_joint_pose" --once   
-rostopic pub /getarm_position std_msgs/String "set_joint_pose" --once   
+## You can set the open manipulator position by kinematics and joint. 
+## You can get the open manipulator position by kinematics and joint. 
+
+I add node to contorl open_manipulator_position_ctrl (arm_controller.cpp) by server and clinet. 
+```bash
+$roscore   
+$roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_gazebo2.launch   
+$roslaunch open_manipulator_with_tb3_waffle_moveit demo2.launch use_gazebo:=true   
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_getset.launch   
+$rostopic pub /getarm_position std_msgs/String "get_kinematics_pose" --once   
+$rostopic pub /getarm_position std_msgs/String "set_kinematics_pose" --once   
+$rostopic pub /getarm_position std_msgs/String "get_joint_pose" --once   
+$rostopic pub /getarm_position std_msgs/String "set_joint_pose" --once   
+```
