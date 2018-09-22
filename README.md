@@ -42,6 +42,22 @@ $roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller2
 Click image to link to YouTube video.  
 [![Video Label](http://img.youtube.com/vi/XlLM5o116SQ/0.jpg)](https://youtu.be/XlLM5o116SQ?t=0s) 
 
+## Run Room10 
+
+This example is a room example to take picture for a Korean Thanksgiving card.   
+
+$roscore  
+$roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_rooms10.launch  
+!!!!! please push play button at gazebo .  
+$roslaunch open_manipulator_with_tb3_waffle_moveit demo2.launch use_gazebo:=true  
+-> control manipulator position   
+-> next please push stop button at gazebo .  
+-> move turtlebot3 place where you want   
+
+<img src="/picture/room10_1.png" width="70%" height="70%">  
+<img src="/picture/room10_2.png" width="70%" height="70%">  
+ 
+
 ## You can set the open manipulator position by kinematics and joint. 
 ## You can get the open manipulator position by kinematics and joint. 
 
