@@ -55,7 +55,7 @@ $roslaunch open_manipulator_with_tb3_waffle_moveit demo2.launch use_gazebo:=true
 -> move turtlebot3 place where you want   
 
 <img src="/picture/room10_1.png" width="70%" height="70%">  
-<img src="/picture/room10_2.png" width="70%" height="70%">  
+<img src="/picture/room10_2.jpg" width="70%" height="70%">  
  
 
 ## You can set the open manipulator position by kinematics and joint. 
