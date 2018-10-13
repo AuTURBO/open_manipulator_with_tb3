@@ -60,6 +60,11 @@ add_executable(pick2 src/pick2.cpp)
 add_dependencies(pick2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(pick2 ${catkin_LIBRARIES})
 
+add_executable(pick3 src/pick3.cpp)
+add_dependencies(pick3 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pick3 ${catkin_LIBRARIES})
+
+
 add_executable(place src/place.cpp)
 add_dependencies(place ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(place ${catkin_LIBRARIES})
@@ -71,6 +76,10 @@ target_link_libraries(place1 ${catkin_LIBRARIES})
 add_executable(place2 src/place2.cpp)
 add_dependencies(place2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(place2 ${catkin_LIBRARIES})
+
+add_executable(place3 src/place3.cpp)
+add_dependencies(place3 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(place3 ${catkin_LIBRARIES})
 
 add_executable(getsetposition src/getsetposition.cpp)
 add_dependencies(getsetposition ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -86,7 +95,7 @@ catkin_install_python(PROGRAMS
 )
 
 #install(TARGETS pick pick1 pick2 place place1 place2 getsetposition
-install(TARGETS pick pick1 pick2 place place2 getsetposition
+install(TARGETS pick pick1 pick2 pick3 place place2 place3 getsetposition
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
