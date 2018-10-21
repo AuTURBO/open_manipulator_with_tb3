@@ -79,12 +79,12 @@ If you want that tb3 move orage to 3 point of shelf.
 $roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=orange place_position:=3  
 If you want that tb3 move apple to 0 point of shelf.  
 $roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=apple place_position:=0  
-
+```
 
 Point of Shelf  
 <img src="/picture/shelfpoint.png" width="70%" height="70%">  
 
-```
+
 If you want that tb3 move orage to 3 point of shelf.  
 $roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=orange place_position:=3  
 Click image to link to YouTube video.  
