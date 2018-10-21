@@ -75,10 +75,27 @@ $roscore
 $roslaunch open_manipulator_with_tb3_gazebo open_manipulator_with_tb3_rooms3.launch  
 $roslaunch open_manipulator_with_tb3_description open_manipulator_with_tb3_model.launch use_gazebo:=true  
 !!!!! please push play button gazebo window.  
-$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch  
+If you want that tb3 move orage to 3 point of shelf.  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=orange place_position:=3  
+If you want that tb3 move apple to 0 point of shelf.  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=apple place_position:=0  
+
+
+Point of Shelf  
+<img src="/picture/shelfpoint.png" width="70%" height="70%">  
+
 ```
+If you want that tb3 move orage to 3 point of shelf.  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=orange place_position:=3  
 Click image to link to YouTube video.  
-[![Video Label](http://img.youtube.com/vi/G6I1NdUfEP0/0.jpg)](https://youtu.be/G6I1NdUfEP0?t=0s) 
+[![Video Label](http://img.youtube.com/vi/lhhee3tCPGQ/0.jpg)](https://youtu.be/lhhee3tCPGQ?t=0s)   
+
+If you want that tb3 move apple to 0 point of shelf.  
+$roslaunch open_manipulator_with_tb3_tools open_manipulator_with_tb3_controller3.launch target_object:=apple place_position:=0  
+Click image to link to YouTube video.  
+[![Video Label](http://img.youtube.com/vi/NPJO3bEeu6g/0.jpg)](https://youtu.be/NPJO3bEeu6g?t=0s)   
+
+
 
 ## Run Room10 
 
@@ -111,4 +128,9 @@ $rostopic pub /getarm_position std_msgs/String "get_kinematics_pose" --once
 $rostopic pub /getarm_position std_msgs/String "set_kinematics_pose" --once   
 $rostopic pub /getarm_position std_msgs/String "get_joint_pose" --once   
 $rostopic pub /getarm_position std_msgs/String "set_joint_pose" --once   
+
+## Etc 
+grep -rns "printf.*:" ./
+grep -rns "printf.*%s.*:" ./
+
 ```

@@ -17,9 +17,12 @@
 /* Authors: Darby Lim */
 
 #include <ros/ros.h>
+#include <math.h> 
 
 #include <std_msgs/Float64.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Int8.h>
+#include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include <open_manipulator_msgs/SetJointPosition.h>
@@ -29,6 +32,7 @@
 
 #include <ar_track_alvar_msgs/AlvarMarkers.h>
 #include <ar_track_alvar_msgs/AlvarMarker.h>
+#include <geometry_msgs/Twist.h>
 
 #define DEG2RAD 0.01745329251
 #define RAD2DEG 57.2957795131
@@ -47,6 +51,7 @@ enum
   WAITING_FOR_SIGNAL = 1,
   CHECK_AR_MARKER_POSE,
   MOVE_ARM,
+  ALING_TO_BOX,
   CLOSE_TO_BOX,
   PLACE_OBJECT,
   INIT_POSITION,
@@ -60,6 +65,7 @@ ros::ServiceClient gripper_position_command_client;
 ros::ServiceClient place_result_client;
 
 ros::Publisher grip_pub;
+ros::Publisher cmd_vel_pub ;
 
 typedef struct
 {
@@ -70,6 +76,8 @@ typedef struct
 
 ar_track_alvar_msgs::AlvarMarker ar_marker_pose;
 geometry_msgs::PoseStamped desired_pose;
+nav_msgs::Odometry current_odom;
+float current_yaw = 0;
 
 State state = {false, false, false};
 
@@ -85,6 +93,7 @@ std::string robot_name;
 double offset_for_object_height, dist_ar_marker_to_box;
 
 int get_marker_id;
+int get_place_position = -1 ;
 
 bool initJointPosition()
 {
@@ -211,8 +220,9 @@ bool placeMsgCallback(open_manipulator_with_tb3_msgs::Place::Request &req,
 {
   if ((state.arm == STOPPED) && (state.gripper == STOPPED))
   {
-    res.result = "START PLACE TASK!";
-    task = CHECK_AR_MARKER_POSE;
+    res.result = "START PLACE 1 TASK!";
+    //task = CHECK_AR_MARKER_POSE;
+    task = MOVE_ARM;
   }
   else
   {
@@ -249,10 +259,46 @@ void arMarkerPoseMsgCallback(const ar_track_alvar_msgs::AlvarMarkers::ConstPtr &
   ar_marker_pose = msg->markers[0];
 }
 
+void shelfPlaceMsgCallback(const std_msgs::Int8::ConstPtr& msg)
+{
+  //ROS_INFO("I heard: [%d]", msg->data);
+  get_place_position = msg->data ;
+}
+
+float quaternion_to_yaw_angle(float w, float x, float y, float z){
+
+	float ysqr = y * y ;        
+        float t3 = +2.0 * (w * z + x * y) ; 
+        float t4 = +1.0 - 2.0 * (ysqr + z * z) ; 
+        //float yaw = math.degrees(math.atan2(t3, t4)) ;  
+	float yaw = atan2 (t3, t4)  * 180 / 3.14  ;    
+        return yaw ;
+
+}
+
+void getOdomMsgCallback(const nav_msgs::Odometry::ConstPtr& odom_msg)
+{
+  //ROS_INFO("I heard: [%d]", msg->data);
+  //get_place_position = msg->data ;
+  //ROS_INFO("odom : %.3f", odom_msg->pose.pose.orientation.x ) ;
+  current_odom.pose.pose.position.x = odom_msg->pose.pose.position.x ;
+  current_odom.pose.pose.position.y = odom_msg->pose.pose.position.y ;
+  current_odom.pose.pose.position.z = odom_msg->pose.pose.position.z ;
+  current_odom.pose.pose.orientation.w = odom_msg->pose.pose.orientation.w ;
+  current_odom.pose.pose.orientation.x = odom_msg->pose.pose.orientation.x ;
+  current_odom.pose.pose.orientation.y = odom_msg->pose.pose.orientation.y ;
+  current_odom.pose.pose.orientation.z = odom_msg->pose.pose.orientation.z ;
+  current_yaw = quaternion_to_yaw_angle ( odom_msg->pose.pose.orientation.w, odom_msg->pose.pose.orientation.x,\
+					 odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z );
+  //ROS_INFO("odom : %.0f _ %.3f, %.3f, %.3f _ %.3f, %.3f, %.3f, %.3f ", yaw, odom_msg->pose.pose.position.x, odom_msg->pose.pose.position.y, odom_msg->pose.pose.position.z, \
+		odom_msg->pose.pose.orientation.w, odom_msg->pose.pose.orientation.x, odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z );
+}
+
 void place()
 {
   open_manipulator_msgs::SetKinematicsPose eef_pose;
   std_msgs::String result_msg;
+  geometry_msgs::Twist twist_msg; 
 
   static uint8_t planning_cnt = 0;
 
@@ -273,9 +319,33 @@ void place()
      break;
 
     case MOVE_ARM:
-      if (state.arm == STOPPED)
+      if (state.arm == STOPPED && get_place_position != -1 )
       {
-        ROS_WARN("MOVE ARM TO PLACE");
+        ROS_WARN("MOVE ARM 1 TO PLACE");
+
+        if ( get_place_position == 0 || get_place_position == 1 ){
+
+           desired_pose.pose.position.x = 0.110 ;
+	   desired_pose.pose.position.y = 0.008 ;
+	   desired_pose.pose.position.z = 0.150 ;
+
+	   desired_pose.pose.orientation.x = 0.000 ;
+	   desired_pose.pose.orientation.y = -0.003 ;
+	   desired_pose.pose.orientation.z = 0.021 ;
+	   desired_pose.pose.orientation.w = 1.000 ;   
+
+	}else{
+
+           desired_pose.pose.position.x = 0.040 ;
+	   desired_pose.pose.position.y = 0.000 ;
+	   desired_pose.pose.position.z = 0.325 ;
+
+	   desired_pose.pose.orientation.x = 0.000 ;
+	   desired_pose.pose.orientation.y = 0.020 ;
+	   desired_pose.pose.orientation.z = 0.002 ;
+	   desired_pose.pose.orientation.w = 1.000 ;   
+
+	}
 
         ROS_INFO("x = %.3f", desired_pose.pose.position.x);
         ROS_INFO("y = %.3f", desired_pose.pose.position.y);
@@ -328,7 +398,41 @@ void place()
             }
           }
         }
+      }else{
+        ROS_WARN("MOVE ARM 1 TO PLACE else %d , %d  ",state.arm, get_place_position );
       }
+     break;
+
+    case ALING_TO_BOX:   
+	  
+	twist_msg.linear.x = 0;
+	twist_msg.linear.y = 0;
+	twist_msg.linear.z = 0;
+	twist_msg.angular.x = 0;
+	twist_msg.angular.y = 0;
+      	if ( current_yaw > 0.1 ){	
+	  twist_msg.angular.z = -0.1;
+	  cmd_vel_pub.publish(twist_msg);	
+          ROS_INFO("turn right current_yaw %f ", current_yaw );	 
+	}
+     	else if ( current_yaw < -0.1 ){
+	  twist_msg.angular.z = 0.1;
+	  cmd_vel_pub.publish(twist_msg);
+          ROS_INFO("turn left current_yaw %f ", current_yaw );		
+	}else{
+            twist_msg.linear.x = 0;
+	    twist_msg.linear.y = 0;
+	    twist_msg.linear.z = 0;
+	    twist_msg.angular.x = 0;
+	    twist_msg.angular.y = 0;
+	    twist_msg.angular.z = 0;
+	    cmd_vel_pub.publish(twist_msg);
+	    pre_task = ALING_TO_BOX;
+            task = WAITING_FOR_STOP;
+            ROS_INFO("current_yaw %f ", current_yaw );	
+		
+	}
+
      break;
 
     case CLOSE_TO_BOX:
@@ -336,61 +440,34 @@ void place()
       {
         ROS_WARN("CLOSE TO BOX");
 
-        geometry_msgs::PoseStamped object_pose = desired_pose;
+	twist_msg.linear.x = 0.17;
+	twist_msg.linear.y = 0;
+	twist_msg.linear.z = 0;
+	twist_msg.angular.x = 0;
+	twist_msg.angular.y = 0;
+	twist_msg.angular.z = 0;
+	cmd_vel_pub.publish(twist_msg);
 
-        object_pose.pose.position.x = object_pose.pose.position.x + (DIST_EDGE_TO_CENTER_OF_PALM + dist_ar_marker_to_box);
 
-        ROS_INFO("x = %.3f", object_pose.pose.position.x);
-        ROS_INFO("y = %.3f", object_pose.pose.position.y);
-        ROS_INFO("z = %.3f", object_pose.pose.position.z);
+	if ( get_place_position == 0 || get_place_position == 1 ){
+           ros::WallDuration sleep_time(2.0); 
+	   sleep_time.sleep();  
+	}else{
+           ros::WallDuration sleep_time(2.3);   
+           sleep_time.sleep();
+	}        
 
-        ROS_INFO("qx = %.3f", object_pose.pose.orientation.x);
-        ROS_INFO("qy = %.3f", object_pose.pose.orientation.y);
-        ROS_INFO("qz = %.3f", object_pose.pose.orientation.z);
-        ROS_INFO("qw = %.3f", object_pose.pose.orientation.w);
+	twist_msg.linear.x = 0;
+	twist_msg.linear.y = 0;
+	twist_msg.linear.z = 0;
+	twist_msg.angular.x = 0;
+	twist_msg.angular.y = 0;
+	twist_msg.angular.z = 0;
+	cmd_vel_pub.publish(twist_msg);
 
-        ROS_INFO("yaw = %.3f", yaw * RAD2DEG);
+	pre_task = CLOSE_TO_BOX;
+        task = WAITING_FOR_STOP;
 
-        eef_pose.request.kinematics_pose.group_name = "arm";
-        eef_pose.request.kinematics_pose.pose = object_pose.pose;
-
-        eef_pose.request.kinematics_pose.max_velocity_scaling_factor = 0.1;
-        eef_pose.request.kinematics_pose.max_accelerations_scaling_factor = 0.1;
-        eef_pose.request.kinematics_pose.tolerance = tolerance;
-
-        ros::service::waitForService(robot_name + "/set_kinematics_pose");
-        if (kinematics_pose_command_client.call(eef_pose))
-        {
-          if (eef_pose.response.isPlanned == true)
-          {
-            ROS_INFO("PLANNING IS SUCCESSED");
-
-            ros::WallDuration sleep_time(1.0);
-            sleep_time.sleep();
-
-            pre_task = CLOSE_TO_BOX;
-            task = WAITING_FOR_STOP;
-          }
-          else
-          {
-            if (planning_cnt > 10)
-            {
-              result_msg.data = "Failed to plan";
-              resultOfPlace(result_msg);
-
-              planning_cnt = 0;
-              task = WAITING_FOR_SIGNAL;
-            }
-            else
-            {
-              planning_cnt++;
-              tolerance += 0.005;
-              ROS_ERROR("PLANNING IS FAILED (%d, tolerance : %.2f)", planning_cnt, tolerance);
-
-              task = CLOSE_TO_BOX;
-            }
-          }
-        }
       }
      break;
 
@@ -403,20 +480,40 @@ void place()
 
         if (result)
         {
-          ROS_INFO("PLANNING IS SUCCESSED");
+          ROS_INFO("Griip PLANNING IS SUCCESSED");
 
-          ros::WallDuration sleep_time(1.0);
+          ros::WallDuration sleep_time(3.0);
           sleep_time.sleep();
 
+	  geometry_msgs::Twist msg;
+	  msg.linear.x = -0.12;
+	  msg.linear.y = 0;
+	  msg.linear.z = 0;
+	  msg.angular.x = 0;
+	  msg.angular.y = 0;
+	  msg.angular.z = 0;
+	  cmd_vel_pub.publish(msg);
+
+	  ros::WallDuration sleep_time2(2.5);
+          sleep_time2.sleep();
+
+	  msg.linear.x = 0;
+	  msg.linear.y = 0;
+	  msg.linear.z = 0;
+	  msg.angular.x = 0;
+	  msg.angular.y = 0;
+	  msg.angular.z = 0;
+	  cmd_vel_pub.publish(msg);
           pre_task = PLACE_OBJECT;
           task = WAITING_FOR_STOP;
+
         }
         else
         {
           planning_cnt++;
           ROS_ERROR("PLANNING IS FAILED (%d)", planning_cnt);
           task = PLACE_OBJECT;
-        }
+        }	
       }
      break;
 
@@ -490,12 +587,12 @@ int main(int argc, char **argv)
 
   ros::Subscriber arm_state_sub = nh.subscribe(robot_name + "/arm_state", 10, armStateMsgCallback);
   ros::Subscriber gripper_state_sub = nh.subscribe(robot_name + "/gripper_state", 10, gripperStateMsgCallback);
-
   ros::Subscriber ar_marker_pose_sub = nh.subscribe("/ar_pose_marker", 10, arMarkerPoseMsgCallback);
+  ros::Subscriber shelf_place_sub = nh.subscribe("/shelfPlace", 10, shelfPlaceMsgCallback);
+  ros::Subscriber odom_sub = nh.subscribe("/odom", 10, getOdomMsgCallback);
+  cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 
   ros::ServiceServer place_server = nh.advertiseService(robot_name + "/place", placeMsgCallback);
-
-  ROS_INFO("Ready to Place Task");
 
   ros::Rate loop_rate(25);
 

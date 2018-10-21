@@ -1,4 +1,4 @@
-image: /home/hyunoklee/catkin_ws/src/open_manipulator_with_tb3/open_manipulator_with_tb3_tools/maps/map3.pgm
+image: /home/hyunoklee/catkin_ws/src/open_manipulator_with_tb3/open_manipulator_with_tb3_tools/maps/map3.pgm  # Need to change path
 resolution: 0.050000
 origin: [-10.000000, -10.000000, 0.000000]
 negate: 0

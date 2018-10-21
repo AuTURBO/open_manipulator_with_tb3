@@ -23,6 +23,7 @@ import os
 import math
 
 from std_msgs.msg import String
+from std_msgs.msg import Int8
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
@@ -80,6 +81,8 @@ class NodeController():
         self.MARKER_ID                           = rospy.get_param("~marker_id")
         self.DISTANCE_BTW_BASE_TO_AR_MARKER      = rospy.get_param("~distance_btw_base_to_ar_marker")
         self.ROTATE_AFTER_PICK_UP                = rospy.get_param("~rotate_after_pick_up")
+	self.TARGET_OBJECT                = rospy.get_param("~target_object")
+	self.PLACE_POSITION                = rospy.get_param("~place_position")
 
     def __init__(self):
         self.getParam()
@@ -92,7 +95,7 @@ class NodeController():
         self.initClient()
 
         self.navigationLaunched(ON)
-
+	#move_to_pose_in_front_up_a_box2 \ add , move set positin 
         self.StepOfPickAndPlace = Enum('StepOfPickAndPlace',
                                        'waiting_signal \
                                         move_to_pose_in_front_up_an_object \
@@ -101,8 +104,8 @@ class NodeController():
                                         pick_object_up \
                                         turn_around \
                                         move_to_pose_in_front_up_a_box \
+					move_to_pose_in_front_up_a_box2 \
                                         align_ar_marker_in_front_up_the_box \
-                                        get_closer_to_the_box \
                                         place_object_in_the_box \
                                         exit')
 	
@@ -112,14 +115,15 @@ class NodeController():
 	self.pre_step = self.StepOfPickAndPlace.move_to_pose_in_front_up_an_object.value
 	#self.pre_step = self.StepOfPickAndPlace.get_closer_to_an_object.value
 	self.step = self.StepOfPickAndPlace.align_ar_marker_in_front_up_an_object.value
-	#self.step = self.StepOfPickAndPlace.pick_object_up.value
+	#self.step = self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box.value
+	#self.step = self.StepOfPickAndPlace.place_object_in_the_box.value
 	
         #self.is_trigger = False
 	self.is_trigger = True
 
 	#self.arMarkerLaunched(ON)
 	self.objectDetect(ON)	
-        
+        self.targetObjectPublish()
         loop_rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             if self.is_trigger == True:                
@@ -130,6 +134,8 @@ class NodeController():
     def initPublisher(self):
         self.tb3_goal_pose_pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
         self.tb3_cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+	self.target_object_pub = rospy.Publisher('/targetObjectSubscriber', String, queue_size=10)
+	self.shelf_place_pub = rospy.Publisher('/shelfPlace', Int8, queue_size=10)
 
     def initSubscriber(self):
         self.node_control_trigger_sub = rospy.Subscriber(self.robot_name + '/node_control_trigger', String, self.triggerMsgCallback, queue_size=10)
@@ -186,12 +192,15 @@ class NodeController():
             rospy.logwarn("Arrive at the goal pose")
 
             #self.arMarkerLaunched(ON)
-	    self.objectDetect(ON)
+	    #self.objectDetect(ON)
 
             if self.pre_step == self.StepOfPickAndPlace.move_to_pose_in_front_up_an_object.value:                
                 self.step = self.StepOfPickAndPlace.align_ar_marker_in_front_up_an_object.value
             elif self.pre_step == self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box.value: 
-                self.step = self.StepOfPickAndPlace.align_ar_marker_in_front_up_the_box.value            
+                self.step = self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box2.value   
+
+            elif self.pre_step == self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box2.value: 
+                self.step = self.StepOfPickAndPlace.align_ar_marker_in_front_up_the_box.value           
 
     def getARmarkerPoseMsgCallback(self, ar_marker_pose_msg):	
 
@@ -227,6 +236,7 @@ class NodeController():
 	'''
     def getOdomMsgCallback(self, odom_msg):
         self.tb3_current_yaw = self.quaternion_to_yaw_angle(odom_msg.pose.pose.orientation.w, odom_msg.pose.pose.orientation.x, odom_msg.pose.pose.orientation.y, odom_msg.pose.pose.orientation.z)
+	#rospy.loginfo("getOdomMsgCallback %d ", self.tb3_current_yaw )
 
     def getPackagePath(self):
         self.ros_package_path = os.path.dirname(os.path.realpath(__file__))
@@ -336,7 +346,12 @@ class NodeController():
         self.tb3_cmd_vel_pub.publish(twist)
         rospy.sleep(1.)
 
-    def controller(self):  
+    def targetObjectPublish(self):    
+        self.target_object_pub.publish(self.TARGET_OBJECT)
+	#rospy.loginfo("target_object is[%s]", self.TARGET_OBJECT )
+
+    def controller(self): 
+        self.targetObjectPublish()        	 
         if self.step == self.StepOfPickAndPlace.move_to_pose_in_front_up_an_object.value:
             rospy.logwarn("Move to pose in front up an object")
 
@@ -365,13 +380,13 @@ class NodeController():
 	    	else:
             		#rospy.loginfo("object num : %d.[%d] %.3f , %.3f , %.3f ", objPoseLen, i, curObjPose[i].position.x, curObjPose[i].position.y, curObjPose[i].position.z )
 			align = math.atan2(curObjPose[i].position.x, curObjPose[i].position.z)			
-  			#rospy.loginfo("radian btw robot and marker= %.3f", align)
+  			rospy.loginfo("radian btw robot and marker= %.3f", align)
 
 		        #if align < -0.1:
 			if align < -0.15:
 		            self.turnLeft(0.05)
 		        #elif align > 0.1:
-			elif align > 0.05:
+			elif align > -0.1:
 		            self.turnRight(0.05)
 		        else:
 		            self.stop()
@@ -426,7 +441,12 @@ class NodeController():
             twist = Twist()          
             rospy.logwarn("yaw = %.3f", self.tb3_current_yaw)
 
-            twist.linear.x  = -0.02;  twist.linear.y  = 0.0; twist.linear.z  = 0.0
+            if self.tb3_current_yaw > 0 :
+		twist.linear.x  = -0.02
+            else :
+		twist.linear.x  =  0.02;  
+          
+            twist.linear.y  = 0.0; twist.linear.z  = 0.0
             twist.angular.x = 0.0;  twist.angular.y = 0.0; twist.angular.z = -0.2
             
             self.tb3_cmd_vel_pub.publish(twist)
@@ -446,17 +466,35 @@ class NodeController():
             self.pre_step = self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box.value
             self.step = self.StepOfPickAndPlace.waiting_signal.value
 
+        elif self.step == self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box2.value:
+            rospy.logwarn("move_to_pose_in_front_up_a_box2")
+	    xOffeset = 0.3
+	    yOffeset = 0.22
+	    
+            if self.PLACE_POSITION == 0  or self.PLACE_POSITION == 2 :
+		self.goalPoseInFrontUpABox.pose.position.y = self.goalPoseInFrontUpABox.pose.position.y + yOffeset
+	    elif self.PLACE_POSITION == 1  or self.PLACE_POSITION == 3 :
+      		self.goalPoseInFrontUpABox.pose.position.y = self.goalPoseInFrontUpABox.pose.position.y - yOffeset  
+	    else :
+      		rospy.loginfo("not support place position in selves")   
+	    
+	    self.goalPoseInFrontUpABox.pose.position.x = self.goalPoseInFrontUpABox.pose.position.x + xOffeset 
+	    self.tb3_goal_pose_pub.publish(self.goalPoseInFrontUpABox) 
+	    self.pre_step = self.StepOfPickAndPlace.move_to_pose_in_front_up_a_box2.value
+            self.step = self.StepOfPickAndPlace.waiting_signal.value
+
         elif self.step == self.StepOfPickAndPlace.align_ar_marker_in_front_up_the_box.value:
+	    rospy.logwarn("align_ar_marker_in_front_up_the_box")
             get_pose = PoseStamped()
             align = 0.0
+
+	    self.step = self.StepOfPickAndPlace.place_object_in_the_box.value
 	    
 	    '''
-            if self.ar_marker_pose == False:
-                  pass
             elif self.ar_marker_pose.id == self.MARKER_ID:
                 get_pose = self.ar_marker_pose.pose
                 align = math.atan2(get_pose.pose.position.y, get_pose.pose.position.x)
-                rospy.logwarn("rradian btw robot and marker = %.3f", align)
+                rospy.logwarn("radian btw robot and marker = %.3f", align)
 
                 if align < -ANGLE_RANGE_TO_ALIGN_WITH_AR_MARKER:
                     self.turnRight(0.1)
@@ -466,35 +504,6 @@ class NodeController():
                     self.stop()
                     self.step = self.StepOfPickAndPlace.get_closer_to_the_box.value
 	    '''
-
-        elif self.step == self.StepOfPickAndPlace.get_closer_to_the_box.value:
-            rospy.logwarn("Get closer to the box2")
-
-            get_pose = PoseStamped()
-            twist = Twist()
-
-            if self.ar_marker_pose == False:
-                self.backward(0.01)
-                rospy.sleep(1.)
-
-                self.stop()
-                self.step = self.StepOfPickAndPlace.place_object_in_the_box.value
-
-            elif self.ar_marker_pose.id == self.MARKER_ID:
-                get_pose = self.ar_marker_pose.pose                
-                rospy.logwarn("x = %.3f", get_pose.pose.position.x)
-
-                #self.forward(0.04)
-		self.forward(0.02)
-
-                if get_pose.pose.position.x < self.DISTANCE_BTW_BASE_TO_AR_MARKER:
-                    self.stop()
-                    self.step = self.StepOfPickAndPlace.place_object_in_the_box.value
-                else:
-                    pass
-                    
-            else:
-                pass
 
         elif self.step == self.StepOfPickAndPlace.place_object_in_the_box.value:
             rospy.logwarn("Ready to Manipulation")
@@ -513,7 +522,8 @@ class NodeController():
             self.step = self.StepOfPickAndPlace.waiting_signal.value
 
         elif self.step == self.StepOfPickAndPlace.waiting_signal.value:
-            pass
+	    if self.pre_step == self.StepOfPickAndPlace.place_object_in_the_box.value :
+	    	self.shelf_place_pub.publish(self.PLACE_POSITION)            
 
         else:
             pass
